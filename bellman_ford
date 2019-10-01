@@ -1,0 +1,68 @@
+#include <stdio.h>
+#define maxN 100
+#define oo 1000
+
+typedef struct {
+	int u, v;
+	int w;
+} Edge;
+
+typedef struct {
+	Edge Edges[maxN];
+	int m, n;
+} Graph;
+
+void MakeNull_Graph(Graph *G, int n){	
+	G->n= n;
+	G->m= 0;
+}
+
+int Bellman(Graph *G, int s){
+	int i, it, k,clgt=0;
+	int pi[maxN], p[maxN];
+	
+	for (i=1; i<=G->n; i++) pi[i]= oo;
+	pi[s]= 0;
+	p[s]= -1;
+	
+	for (it=1; it<=G->n; it++){
+		for (k=1; k<=G->m; k++){
+			int u= G->Edges[k].u;
+			int v= G->Edges[k].v;
+			int w= G->Edges[k].w;
+			if (pi[u] + w < pi[v]){
+				pi[v]= pi[u] + w;
+				p[v]= u;
+			}
+		}
+	}
+	for (k=1; k<=G->m; k++){
+		int u= G->Edges[k].u;
+		int v= G->Edges[k].v;
+		int w= G->Edges[k].w;
+		if (pi[u] + w < pi[v]){
+			clgt=1;
+		}
+	}
+	return clgt;
+}
+
+int main(){
+	int i, n, m, u, v, w,s;
+	Graph G;
+	scanf("%d%d",&n,&m);
+	MakeNull_Graph(&G,n);
+	G.m= m;
+	for (i=1; i<=m; i++){
+		scanf("%d%d%d",&u,&v,&w);
+		G.Edges[i].u= u;
+		G.Edges[i].v= v;
+		G.Edges[i].w= w;
+	}
+	scanf("%d",&s);
+	if(Bellman(&G,s)==1){
+		printf("YES");
+	}else{
+		printf("NO");
+	}
+}
