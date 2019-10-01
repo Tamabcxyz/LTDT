@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_VERTICES 100
+typedef struct{
+	int A[MAX_VERTICES][MAX_VERTICES];
+	int n; // n la so dinh
+}Graph;
+// khoi tao ma tran dinh dinh
+void init_graph(Graph* G, int n){
+	G->n=n;
+	int i,j;
+	for(i=1;i<=n;i++){
+		for(j=1;j<=n;j++){
+			G->A[i][j]=0;// khoi tao ma tran dinh dinh la cac con so 0
+		}
+	}
+}
+// them cung vao do thi
+void add_edge(Graph* G, int x, int y){
+	if(G->A[x][y]!=0&&G->A[y][x]!=0){
+		G->A[x][y]+=1;// day la truong hop da cung trong do thi
+		G->A[y][x]+=1;
+	}else{
+		G->A[x][y]=1;// x noi voi y
+		G->A[y][x]=1;// y noi voi x
+	}
+}
+// kiem tra y co ke voi x khong(y co noi voi x khong)
+int adjacent(Graph* G, int x, int y){
+	return G->A[x][y]!=0;
+}
+// tinh bac cua dinh x
+int degree(Graph* G, int x){
+	int i,deg=0;
+	for(i=1;i<=G->n;i++){
+		deg+=G->A[x][i];	
+	}
+	return deg;
+}
+int main(){
+	
+	Graph G;
+	int n=4,i,j;
+	init_graph(&G,n);
+	add_edge(&G,1,2);
+	add_edge(&G,1,3);
+	add_edge(&G,1,3);
+	add_edge(&G,3,4);
+	add_edge(&G,1,4);
+	for(i=1;i<=n;i++){
+		for(j=1;j<=n;j++){
+			printf("%d ",G.A[i][j]);
+		}
+		printf("deg(%d)=%d",i,degree(&G,i));
+		printf("\n");
+	}
+		
+}
