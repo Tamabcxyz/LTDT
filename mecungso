@@ -1,0 +1,188 @@
+/*
+#include<stdio.h>
+#define MAX 100
+typedef struct{
+	int m, n;
+	int A[MAX][MAX];
+}Graph;
+void init_graph(Graph* G, int m, int n){
+	G->m = m;
+	G->n = n;
+}
+void add_edge(Graph* G, int x, int i, int j){
+	G->A[i][j]=x;
+}
+// tim duong di ngan nhat
+#define INFINITY 999999
+int mark[MAX];
+int pi[MAX];
+int p[MAX];
+void Dijkstra(Graph* G, int s){
+	int i, j, it;
+	int di[] = {-1, 1, 0, 0};
+	int dj[] = {0, 0, -1, 1};
+	int k;
+	
+	for(i=1; i<=(G->n)*(G->m); i++){
+		pi[i] = INFINITY;
+		mark[i]=0;
+	}
+	pi[s]=0;
+	p[s]=-1;
+	
+	for(it=1; it<(G->n)*(G->m); it++){
+		int min_pi = INFINITY;
+		for(j=1; j<=(G->n)*(G->m); j++)
+			if(mark[j]==0 && pi[j] < min_pi){
+				min_pi = pi[j];
+				i = j;
+			}
+		
+		mark[i]=1;
+		
+		int x = (i-1) / (G->n);
+		int y = (i-1) % (G->n);
+		
+		for(k=0; k<4; k++){
+			int xx = x + di[k];
+			int yy = y + dj[k];
+			
+			if(xx>=0 && xx<(G->m) && yy>=0 && yy<(G->n)){
+				int v = (xx*(G->n) + yy) + 1;
+				
+				if(mark[v]==0){
+					if(pi[i] + G->A[xx][yy] < pi[v]){
+						pi[v] = pi[i] + G->A[xx][yy];
+						p[v] = i;
+					}	
+				}										
+			}
+		}
+	} 
+}
+int main(){
+	Graph G;
+	int m, n, i, j, x;
+	scanf("%d%d",&m,&n);
+	init_graph(&G,m,n);
+	for(i=0; i<m; i++)
+		for(j=0; j<n; j++){
+			scanf("%d",&x);
+			add_edge(&G,x,i,j);
+		}
+	Dijkstra(&G,1);	
+	printf("%d",pi[((m-1)*n + (n-1)) + 1]);		
+	return 0;
+}
+*/
+#include <stdio.h>
+#define MAX_VERTICES 100
+#define MAX_NODE 100
+#define NO_EDGE 0
+
+typedef struct
+{
+	int n;
+	int A[MAX_VERTICES][MAX_VERTICES];
+}Graph;
+
+void init_graph(Graph *G,int n){
+	G->n=n;
+	int i,j;
+	for(i=0;i<n;i++)	{
+		for(j=0;j<n;j++){
+			G->A[i][j]=0;
+		}
+	}
+}
+void add_edge(Graph *G,int u,int v,int w){
+	G->A[u][v]=w;
+}
+#define INFINITY 999
+int mark[MAX_VERTICES];
+int pi[MAX_VERTICES];
+int p[MAX_VERTICES];
+int di[]={-1,1,0,0};
+int dj[]={0,0,-1,1};
+
+void Chuyenmatrantrongso(int A[][100],int W[],int M,int N){
+	int i,j;
+	for(i=0;i<M;i++)	{
+		for(j=0;j<N;j++)		{
+			int u=(i*N+j)+1;
+			W[u]=A[i][j];
+		}
+	}
+}
+
+void Capnhatdinhke(int A[][100],int W[],int M,int N,Graph *G){
+	int i,j,k;
+	for(i=0;i<M;i++)	{
+		for(j=0;j<N;j++){
+			int u=(i*N+j)+1;		
+			for(k=0;k<4;k++)
+			{
+				int i_ke=i+di[k];
+				int j_ke=j+dj[k];
+				if(i_ke>=0 && i_ke<M && j_ke>=0 && j_ke<N)
+				{
+					int v=i_ke*N+j_ke+1;
+					G->A[u][v]=W[v];
+				}
+			}
+		}
+	}
+}
+void Dijkstra(Graph *G,int s, int W[]){
+	int i,j,it;
+	for(i=1;i<=G->n;i++)	{
+		pi[i]=INFINITY;
+		mark[i]=0;
+	}
+	pi[s]=W[s];
+	p[s]=-1;
+	for(it=1;it<G->n;it++)	{
+		int min_pi=INFINITY;
+		for(j=1;j<=G->n;j++)
+			{
+				if(mark[j]==0 && pi[j]<min_pi)
+			{
+				min_pi=pi[j];
+				i=j;
+			}
+			}		
+		mark[i]=1;
+		for(j=1;j<=G->n;j++)
+		{
+			if(G->A[i][j]!=NO_EDGE && mark[j]==0)
+			{	
+				if(pi[i]+G->A[i][j]<pi[j])
+			{
+				pi[j]=pi[i]+G->A[i][j];
+				p[j]=i;
+			}
+		}
+	}
+	}
+}
+int main()
+{
+	Graph G;
+	int i,j,n, m, u, v, w, e,N,M;
+	scanf("%d%d",&M,&N);
+	init_graph(&G,M*N);
+	int A[MAX_VERTICES][MAX_VERTICES];
+	int W[MAX_VERTICES];
+	for(i=0;i<M;i++)
+	{
+		for(j=0;j<N;j++)
+		{
+			scanf("%d",&A[i][j]);
+		}
+	}
+	Chuyenmatrantrongso(A,W,M,N);
+	Capnhatdinhke(A,W,M,N,&G);
+	Dijkstra(&G,1,W);
+	printf("%d",pi[M*N]);
+	return 0;
+}
