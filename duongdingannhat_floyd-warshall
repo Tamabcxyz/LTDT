@@ -1,0 +1,54 @@
+#include <stdio.h>
+#define maxN 100
+#define oo 1000
+
+typedef struct {
+	int pi[maxN][maxN];
+	int next[maxN][maxN];
+	int n;
+} Graph;
+
+void MakeNull_Graph(Graph *G, int n){
+	int i, j;
+	G->n= n;
+	
+	for (i=1; i<=G->n; i++)
+		for (j=1; j<=G->n; j++){
+			G->pi[i][j]= oo;
+			G->next[i][j]= -1;
+		}
+	
+	for (i=1; i<=G->n; i++) G->pi[i][i]= 0;
+			
+}
+
+void Floyd_Warshall(Graph *G){
+	int u, v, k;
+	for (u=1; u<=G->n; u++)
+		for (v=1; v<=G->n; v++)
+			for (k=1; k<=G->n; k++)
+				if (G->pi[u][k] + G->pi[k][v] < G->pi[u][v]){
+					G->pi[u][v] = G->pi[u][k] + G->pi[k][v];
+					G->next[u][v] = G->next[u][k];
+				}
+	printf("Duong di tu dinh 1 den %d la:\n",G->n);
+	int t=G->n, s=1;
+	printf("1");
+	while (s!=t){
+		printf(" -> %d",G->next[s][t]);
+		s= G->next[s][t];
+	}			
+}
+
+main(){
+	int n, m, i, u, v, w;
+	Graph G;
+	scanf("%d%d",&n,&m);
+	MakeNull_Graph(&G,n);
+	for (i=1; i<=m; i++){
+		scanf("%d%d%d",&u,&v,&w);
+		G.pi[u][v]= w;
+		G.next[u][v]= v;
+	}
+	Floyd_Warshall(&G);
+}
