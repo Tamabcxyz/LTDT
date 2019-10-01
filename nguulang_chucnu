@@ -1,0 +1,72 @@
+#include<stdio.h>
+#define MAXN 100
+#define NO_EGDE -1
+#define INFINITY 9999999
+
+typedef struct{
+	int n;
+	int L[MAXN][MAXN];
+} Graph;
+
+void init_graph(Graph* G, int n){
+	G->n = n;
+	int i, j;
+	for(i=1;i<=n;i++)
+		for(j=1;j<=n;j++)
+			G->L[i][j]= NO_EGDE;
+}
+void add_edge1(Graph *pG,int x,int y,int w){
+	pG->L[x][y]=w;
+}
+void add_edge2(Graph *pG,int x,int y,int w){
+	pG->L[x][y]=w;
+	pG->L[y][x]=w;
+}
+int mark[MAXN];
+int pi[MAXN];
+int p[MAXN];
+
+void Dijkstra(Graph* G, int s){
+	int i, j, it;
+	for(i=1;i<=G->n; i++){
+		pi[i] = INFINITY;// pi=oo vs moi i khac s.
+		mark[i] = 0;
+	}
+	pi[s]= 0;
+	p[s] = -1;
+	
+	for(it =1; it<=G->n;it++){
+		//tim dinh chua danh dau va co pi[i] nho nhat
+		int min_pi= INFINITY;
+		
+		for(j=1;j<=G->n;j++)
+			if(mark[j]==0&& pi[j]<min_pi){
+				min_pi=pi[j];
+				i=j;
+			}
+		//danh dau dinh da xet
+		mark[i]=1;
+		for(j=1;j<=G->n;j++)
+			if(G->L[i][j]!=NO_EGDE&&mark[j]==0){
+				if(pi[i]+G->L[i][j]< pi[j]){
+					pi[j]=pi[i]+G->L[i][j];
+					p[j]=i;
+				}
+			}
+	}
+}
+
+  int main(){
+	Graph G;
+	int n,m,u,v,w,i,j;
+	scanf("%d%d",&n,&m);
+	init_graph(&G,n);
+	for(i=0;i<m;i++){
+		scanf("%d%d%d",&u,&v,&w);
+		add_edge2(&G,u,v,w);
+	}
+	Dijkstra(&G, 1);
+	if(pi[n]!=INFINITY)
+		printf("%d",pi[n]);
+	return 0;
+}
