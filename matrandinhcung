@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_VERTICES 100
+#define MAX_EDGES 500
+typedef struct{
+	int A[MAX_VERTICES][MAX_EDGES];// luu ma tran 2 chieu chua MAX_VERTICES dinh va MAX_EDGES cung
+	int n,m;// n la so dinh, m la so cung
+}Graph;
+// khoi tao do thi n dinh va m cung
+void init_graph(Graph* G, int n, int m){
+	G->n=n;
+	G->m=m;
+	int i,j;
+	for(i=1;i<=n;i++){
+		for(j=1;j<=m;j++){
+			G->A[i][j]=0;// gan tu o trong ma tran dinh cung =0
+		}
+	}
+}
+// them cung vao do thi
+void add_edge(Graph* G, int e, int x, int y){
+	G->A[x][e]=1;// tai dinh x cung e co gia tri la 1
+	G->A[y][e]=1;// tai dinh y cung e co gia tri la 1
+	//=> tu 2 dong tren suy ra 2 dinh noi voi nhau qua cung e
+}
+// kiem tra dinh y co ke voi x hay khong
+int adjacent(Graph* G, int x, int y){
+	int i;
+	for(i=1;i<=G->m;i++){// chay theo cung 
+		if(G->A[x][i]==1&&G->A[y][i]==1){//xem 2 dinh x, y co cung noi qua 1 cung nao do hay khong
+			return 1;
+		}	
+	}
+	return 0;
+}
+// tinh so bac cua 1 dinh
+// so bac cua 1 dinh la so cung noi toi no
+int degree(Graph* G, int x){
+	int i,deg=0;
+	for(i=1;i<=G->m;i++){
+		if(G->A[x][i]==1){
+			deg++;
+		}
+	}
+	return deg;
+}
+
+int main(){
+	/*
+	Graph G;
+	int n=4, m=5,i,j;
+	init_graph(&G,n,m);
+	add_edge(&G,1,1,2);
+	add_edge(&G,2,1,3);
+	add_edge(&G,3,1,3);
+	add_edge(&G,4,3,4);
+	add_edge(&G,5,1,4);
+	for(i=1;i<=n;i++){
+		for(j=1;j<=m;j++){
+			printf("%d ",G.A[i][j]);
+		}
+		printf("deg(%d)=%d",i,degree(&G,i));
+		printf("\n");
+	}*/
+	// doc file tu tap tin
+	
+	Graph G;
+	int n,m,x,y,i,j;
+	FILE* file=fopen("dothi.txt","r");
+	fscanf(file,"%d%d",&n,&m);
+	init_graph(&G,n,m);
+	for(i=1;i<=m;i++){
+		fscanf(file,"%d%d",&x,&y);
+		add_edge(&G,i,x,y);
+	}
+	for(i=1;i<=n;i++){
+		for(j=1;j<=m;j++){
+			printf("%d ",G.A[i][j]);
+		}
+		printf("deg(%d)=%d",i,degree(&G,i));
+		printf("\n");
+	}
+	
+}
