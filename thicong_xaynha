@@ -1,0 +1,187 @@
+#define MAX 100
+#define INF 99999
+#include<stdio.h>
+typedef struct
+{
+	int n;
+	int A[MAX][MAX];
+}Graph;
+typedef struct
+{
+	int size;
+	int data[MAX];
+}List;
+typedef struct
+{
+	int data[MAX];
+	int front, rear;
+}Queue;
+void init_graph(Graph *G, int n)
+{
+	int i,j;
+	G->n = n;
+	for(i = 1 ; i <= n ; i++)
+		for(j = 1 ; j <= n ; j++)
+			G->A[i][j] = 0;
+}
+void add_edge(Graph* G, int x, int y)
+{
+	G->A[x][y] = 1;
+}
+void make_null_list(List *L)
+{
+	L->size = 0 ;
+}
+void push_back(List *L, int x)
+{
+	L->data[L->size] = x;
+	L->size++;
+}
+int empty_list(List *L)
+{
+	return L->size == 0;
+}
+int element_at(List *L, int x)
+{
+	return L->data[x-1];
+}
+void make_null_queue(Queue *Q)
+{
+	Q->front = 0;
+	Q->rear = -1;
+}
+int empty_queue(Queue *Q)
+{
+	return Q->front > Q->rear;
+}
+void push(Queue *Q, int x)
+{
+	Q->rear++;
+	Q->data[Q->rear] = x;
+}
+int top(Queue *Q)
+{
+	return Q->data[Q->front];
+}
+void pop(Queue *Q)
+{
+	Q->front++;
+}
+void p_G(Graph *G)
+{
+	int i,j;
+	for(i = 1 ; i <= G->n ; i++){
+		for(j = 1 ; j <= G->n ; j++){
+			printf("%d ",G->A[i][j]);
+		}
+		printf("\n");
+	}
+}
+int min(int a, int b)
+{
+	return a < b ? a : b;
+}
+int max(int a, int b)
+{
+	return a > b ? a : b;
+}
+int d[MAX];
+void topo_sort(Graph *G, List *L)
+{
+	Queue Q;
+	make_null_queue(&Q);
+	int u, x;
+	for(u = 1 ; u <= G->n ; u++)
+		d[u] = 0;
+	for(x = 1 ; x <= G->n ; x++)
+		for(u = 1 ; u <= G->n ; u++)
+			if(G->A[x][u] != 0)
+				d[u]++;
+	for(u = 1 ; u <= G->n ; u++)
+		if(d[u] == 0)
+			push(&Q, u);
+	while(!empty_queue(&Q))
+	{
+		u = top(&Q) ; pop(&Q);
+//		printf("%d ",u);
+		push_back(L, u);
+		int v;
+		for(v = 1 ; v <= G->n ; v++)
+		{
+			if(G->A[u][v] != 0)
+			{
+//				printf("%d",v);
+				d[v]--;
+				if(d[v] == 0)
+					push(&Q,v);
+			}
+		}
+	}
+}
+int main()
+{
+	int w[MAX];
+	Graph G;
+	List L;
+	make_null_list(&L);
+	int n, u, v, x, j;
+	scanf("%d",&n);
+	init_graph(&G, n+2);
+	w[n+1] = 0;
+	for(u = 1 ; u <= n ; u++)
+	{
+		scanf("%d",&w[u]);
+		int v;
+		do
+		{
+			scanf("%d",&v);
+			if(v > 0)
+				add_edge(&G,v,u);
+		}
+		while(v > 0);
+	}
+	int cv, tgcv;
+	for(u = 1 ; u <= n ; u++)
+	{
+		int deg_neg = 0;
+		for(x = 1 ; x <= n ; x++)
+			if(G.A[x][u] > 0)
+				deg_neg++;
+		if(deg_neg == 0)
+			add_edge(&G, n+1, u);
+	}
+	for(u = 1 ; u <= n ; u++)
+	{
+		int deg_pos = 0;
+		for(v = 1 ; v <= n ; v++)
+			if(G.A[u][v] > 0)
+				deg_pos++;
+		if(deg_pos == 0)
+			add_edge(&G, u, n+2);
+	}
+	topo_sort(&G,&L);
+	int t[MAX];
+	t[n+1] = 0 ;
+	for(j = 2 ; j <= L.size ; j++)
+	{
+		int u = element_at(&L, j);
+		t[u] = -1;
+		for(x = 1 ; x <= n + 2 ; x++)
+			if(G.A[x][u] > 0)
+				t[u] = max(t[u], t[x] + w[x]);
+	}
+	int T[MAX];
+	T[n+2] = t[n+2] ;
+	for(j = L.size -1 ; j >= 1 ; j--)
+	{
+		int u = element_at(&L, j);
+		T[u] = INF;
+		for(v = 1 ; v <= n + 2; v++)
+			if(G.A[u][v] > 0)
+				T[u] = min(T[u], T[v] - w[u]);
+	}
+	//buoc 7 in kq ra
+	printf("%d\n",T[n+2]);
+	for(j = 1 ; j <= n +2 ; j++)
+		printf("%d-%d\n",t[j] ,T[j]);
+}
