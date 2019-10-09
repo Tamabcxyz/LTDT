@@ -1,0 +1,129 @@
+#define MAX 100
+#include<stdio.h>
+typedef struct
+{
+	int n;
+	int A[MAX][MAX];
+}Graph;
+void init_graph(Graph* G, int n)
+{
+	G->n = n;
+	int i,j;
+	for(i = 1 ; i <= n ; i++)
+		for(j = 1 ; j<= n ; j++)
+			G->A[i][j] = 0;
+}
+void add_edge(Graph* G , int u, int v)
+{
+	G->A[u][v] = 1;
+	//G->A[v][u] = 1;
+}
+int adjacent(Graph* G, int x, int y)
+{
+	return G->A[x][y] == 1;
+}
+typedef struct
+{
+	int size;
+	int data[MAX];
+}List;
+void make_null_list(List* L)
+{
+	L->size = 0;
+}
+int empty_list(List* L)
+{
+	return L->size == 0;
+}
+void push_back(List* L, int x)
+{
+	L->data[L->size] = x;
+	L->size++;
+}
+int element_at(List* L, int x)
+{
+	return L->data[x-1];
+}
+void copy_list(List* S1,List* S2)
+{
+	int e;
+	make_null_list(S1);
+	for(e = 1 ; e <= S2->size ; e++)
+	{
+		int y = element_at(S2,e);
+		push_back(S1,y);
+	}
+}
+List neighbors(Graph* G , int x, int y)
+{
+	List L;
+	int i;
+	make_null_list(&L);
+	for(i = 1 ; i <= G->n ; i++)
+		if(adjacent(G,x,i))
+			push_back(&L,i);
+	return L;
+}
+int rank[MAX];
+int tong;
+void ranking(Graph* G)
+{
+	int d[MAX];
+	int x,u;
+	for(u = 1 ; u <= G->n ; u++)
+		d[u] = 0;
+	for(x = 1 ; x <= G->n ; x++)
+		for(u = 1 ; u <= G->n ; u++)
+			if(G->A[x][u] != 0)
+				d[u]++;
+	List S1, S2;
+	make_null_list(&S1);
+	for(u = 1 ; u <= G->n ; u ++)
+		if(d[u] == 0)
+			push_back(&S1, u);
+	int k = 0 , j;
+	while(S1.size > 0) 
+	{
+		make_null_list(&S2);
+		for(j = 1 ; j <= S1.size ; j++)
+		{
+			int u = element_at(&S1,j);
+			rank[u] = k;
+			int v;
+			for(v = 1 ; v <= G->n ; v++)
+				if(G->A[u][v] != 0)
+				{
+					d[v]--;
+					if(d[v]==0)
+						push_back(&S2,v);
+				}
+		}
+		copy_list(&S1,&S2);
+		k++;
+	}
+}
+
+int main()
+{
+	Graph G;
+	int e, n, m, u, v;
+	scanf("%d%d",&n,&m);
+	init_graph(&G,n);
+	for(e = 1 ; e <= m ; e++)
+	{
+		scanf("%d%d",&u,&v);
+		add_edge(&G,u,v);
+	}
+	ranking(&G);
+	int i;
+	int max = rank[1];
+	for(i=1; i<=n; i++)
+		if(rank[i]>=max)
+			max = rank[i];
+	for(i=1; i<=n; i++){
+		printf("%d\n",rank[i]);
+	}
+}
+
+
+
