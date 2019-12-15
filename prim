@@ -1,0 +1,120 @@
+
+#include <stdio.h>
+#define INFINITY 999
+#define NO_EDGE -1
+int mark[200];
+typedef struct{
+	int data[100];
+	int size;	
+}List;
+// khoi tao ds rong
+void make_null_list(List* L){
+	L->size=0;
+}
+// them ptu vao cuoi ds
+void push_back(List* L, int x){
+	L->data[L->size]=x;
+	L->size++;
+}
+// lay ptu o vi tri i
+int element_at(List* L, int i){
+	return L->data[i-1];
+}
+// tra ve so ptu cua ds
+int count_list(List* L){
+	return L->size;
+}
+// cau truc do thi
+typedef struct{
+	int A[500][500];
+	int n;
+}Graph;
+// khoi tao do thi
+void init_graph(Graph* G, int n){
+	G->n=n;
+	int i,j;
+	for(i=1;i<=G->n;i++){
+		for(j=1;j<=G->n;j++){
+			G->A[i][j]=-1;// ko co cung
+		}
+	}
+}
+void add_edge(Graph* G, int u, int v, int w){
+	G->A[u][v]=w;
+	G->A[v][u]=w;
+}
+// tinh khoan cach
+int distanceFrom(int u, List* S, Graph* G){
+	int min_dist=INFINITY;// khoi tao cho no bang vo cung
+	int min_v=-1;
+	int i;
+	for(i=1;i<=S->size;i++){// duyet trong danh sach S
+		int v=element_at(S,i);// lay tu phan tu ra duyet
+		if(G->A[u][v]!=-1 && min_dist>G->A[u][v]){// neu co cung va co dung nho hon vo cung thi thuc hien
+			min_dist=G->A[u][v];
+			min_v=v;
+		}
+	}
+	return min_v;
+}
+int temp[100][100];// tao mang 2 chieu de luu tru gia tri tam phuc vu cho viec hien thi ra mang hinh 
+int Prim(Graph* G, Graph* T){
+	init_graph(T,G->n);
+	List S;
+	make_null_list(&S);
+	int i,u;
+	for(i=1;i<=T->n;i++) // khoitao temp rong
+		for(u=1;u<=T->n;u++)
+			temp[i][u]=0;
+	for(i=1;i<=G->n;i++){
+		mark[i]=0;
+	}	
+	push_back(&S,1);
+	mark[1]=1;
+	int sum_w=0;
+	for(i=1;i<=G->n;i++){
+		int min_dist=INFINITY;
+		int min_u,min_v;
+		for(u=1;u<=G->n;u++){
+			if(mark[u]==0){
+				int v=distanceFrom(u,&S,G);
+				if(v!=-1 && G->A[u][v]<min_dist){
+					min_dist=G->A[u][v];
+					min_u=u;
+					min_v=v;
+					sum_w+=min_dist;
+					
+				    if(min_u < min_v)// dua vao cay T temp
+				    temp[min_u][min_v]= min_dist;
+			        else
+				    temp[min_v][min_u]=min_dist;
+					
+				}
+			}
+		}
+		push_back(&S, min_u);
+		mark[min_u]=1;
+		add_edge(T,min_u, min_v, min_dist);
+	
+	}
+	return sum_w;
+}
+int main(){
+	Graph G, T;
+	int n,m,u,v,w;
+	scanf("%d%d",&n,&m);
+	init_graph(&G,n);
+	int i,j;
+	for(i=1;i<=m;i++){
+		scanf("%d%d%d",&u,&v,&w);
+		add_edge(&G,u,v,w);
+	}
+	printf("%d\n",Prim(&G,&T));
+	for(i=1;i<=T.n;i++){
+		for(j=1;j<=T.n;j++){
+			if(temp[i][j]!=0){
+				printf("%d %d %d\n",i,j,temp[i][j]);
+			}
+		}	
+	}
+}
