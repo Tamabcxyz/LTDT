@@ -1,0 +1,89 @@
+#include <stdio.h>
+int parent[100];
+typedef struct{
+	int u,v,w; // luu 2 dinh u v va trong so cua cung uv
+}Edge;
+typedef struct{
+	int n,m;
+	Edge edges[500];// chua cung ??? 100 ko ra 500 moi ra???????
+}Graph;
+void init_graph(Graph* G, int n){
+	G->n=n;// do thi co n dinh
+	G->m=1;// dau tien khoi tao 1 cung
+}
+void add_edge(Graph* G, int u, int v, int w){
+	G->edges[G->m].u=u;
+	G->edges[G->m].v=v;
+	G->edges[G->m].w=w;
+	G->m++;// cung m tang tu 1 den m cung
+}
+int find_root(int u){
+	if(parent[u]==u){
+		return u;
+	}
+	return find_root(parent[u]);
+}
+void swap_edge(Graph* G, int i, int j){
+	int temp1=G->edges[i].u;
+	int temp2=G->edges[i].v;
+	int temp3=G->edges[i].w;
+	G->edges[i].u=G->edges[j].u;
+	G->edges[i].v=G->edges[j].v;
+	G->edges[i].w=G->edges[j].w;
+	G->edges[j].u=temp1;
+	G->edges[j].v=temp2;
+	G->edges[j].w=temp3;
+}
+// gia thuat Kruskal
+int Kruskal(Graph* G, Graph* T){
+	int i,j;
+	// sap xep noi bot
+	for(i=1;i<=G->m-1;i++){
+		for(j=G->m-1;j>1;j--){
+			if(G->edges[j].w<G->edges[j-1].w){
+				swap_edge(G,j,j-1);
+			}
+		}
+	}
+	init_graph(T,G->n);
+	for(i=1;i<=G->n;i++){
+		parent[i]=i;
+	}
+	int sum_w=0;
+	for(i=1;i<=G->m;i++){
+		int u=G->edges[i].u;
+		int v=G->edges[i].v;
+		int w=G->edges[i].w;
+		int root_u=find_root(u);
+		int root_v=find_root(v);
+		if(root_u!=root_v){
+			add_edge(T,u,v,w);
+			parent[root_v]=root_u;
+			sum_w+=w;
+		}
+	}
+	return sum_w;
+}
+int main(){
+	Graph G, T;
+	int n,m,u,v,w;
+	scanf("%d%d",&n,&m);
+	init_graph(&G,n);
+	int i;
+	for(i=1;i<=m;i++){
+		scanf("%d%d%d",&u,&v,&w);
+		add_edge(&G,u,v,w);
+	}
+	printf("%d\n",Kruskal(&G,&T));
+	for(i=1;i<T.m;i++){
+		int u=G.edges[i].u;
+		int v=G.edges[i].v;
+		int w=G.edges[i].w;
+		if(u<v){
+			printf("%d %d %d\n",u,v,w);
+		}else{
+			printf("%d %d %d\n",v,u,w);
+		}
+	}
+	
+}
